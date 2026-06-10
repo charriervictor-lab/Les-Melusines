@@ -157,6 +157,12 @@
         }
         .btn-secondary:hover { background-color: #64748b; }
 
+        .btn-danger {
+            background-color: #ef4444;
+            margin-top: 8px;
+        }
+        .btn-danger:hover { background-color: #dc2626; }
+
         /* To-Do List */
         .todo-input-group {
             display: flex;
@@ -199,16 +205,59 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            width: 85%;
         }
-        .todo-item input[type="checkbox"] {
+        
+        /* Nouveau Carré Interactif Tâches */
+        .todo-square-checkbox {
             width: 16px;
             height: 16px;
+            border: 2px solid #4b5563;
+            border-radius: 3px;
             cursor: pointer;
+            display: inline-block;
+            flex-shrink: 0;
+            background-color: white;
+            transition: all 0.2s;
         }
-        .todo-text.completed {
+        .todo-square-checkbox[data-state="1"] {
+            background-color: #fef08a;
+            border-color: #eab308;
+        }
+        .todo-square-checkbox[data-state="2"] {
+            background-color: #d1d5db;
+            border-color: #9ca3af;
+            position: relative;
+        }
+        /* Petit check visuel pour l'état rayé */
+        .todo-square-checkbox[data-state="2"]::after {
+            content: "✓";
+            position: absolute;
+            font-size: 11px;
+            color: #4b5563;
+            top: -3px;
+            left: 2px;
+            font-weight: bold;
+        }
+
+        .todo-text {
+            transition: all 0.2s;
+            padding: 2px 4px;
+            border-radius: 4px;
+            width: 100%;
+        }
+        /* Nouveaux états de texte demandés */
+        .todo-text.surligne {
+            background-color: #fef08a;
+            color: #000;
+            text-decoration: none;
+        }
+        .todo-text.raye {
             text-decoration: line-through;
             color: #9ca3af;
+            background-color: transparent;
         }
+
         .btn-delete-todo {
             background: none;
             border: none;
@@ -337,13 +386,11 @@
 
         <div class="main-layout">
             
-            <!-- Gauche : Fiches des Agents -->
             <aside class="panel">
                 <h2>Fiches des Agents <span id="totalAgentsBadge" class="alert-count" style="background-color: #4b5563;">0</span></h2>
                 <div class="agent-list" id="alphabeticalAnnuary"></div>
             </aside>
 
-            <!-- Milieu : Formulaires dynamiques (Création / Modification) & To-Do -->
             <div class="center-layout">
                 <aside class="panel" id="contextPanel"></aside>
 
@@ -357,7 +404,6 @@
                 </aside>
             </div>
 
-            <!-- Droite : Calculateur d'incidences et Rappels -->
             <main style="display: flex; flex-direction: column; gap: 20px;">
                 
                 <div class="reminder-editable-panel">
@@ -409,7 +455,7 @@
     </div>
 
     <script>
-        // Base de données incluant de nouveaux exemples de tests pour la formation et la dispo
+        // Base de données
         let agentsDb = [
             { id: 1, nom: "Albert Thomas", grade: "titulaire", situation: "aucun", debut: "", fin: "", notes: "En poste à temps complet." },
             { id: 2, nom: "Bernard Lucas", grade: "suppleant", situation: "mat", debut: "2026-08-10", fin: "2026-12-15", notes: "Remplacement congé maternité actif." },
@@ -440,9 +486,10 @@
             8: "• Septembre : Lancement de la campagne de paie de rentrée. Vérification des contrats alternants et suivi strict des agents en disponibilité et formation."
         };
 
+        // Liste des tâches modifiée pour gérer l'état numérique (0 = normal, 1 = surligné, 2 = rayé)
         let listeTaches = [
-            { id: 1, texte: "Contrôler les attestations de reprise de TPTH", cochee: false },
-            { id: 2, texte: "Vérifier le montant forfaitaire indemnité formation P. Rousseau", cochee: false }
+            { id: 1, texte: "Contrôler les attestations de reprise de TPTH", etat: 0 },
+            { id: 2, texte: "Vérifier le montant forfaitaire indemnité formation P. Rousseau", etat: 0 }
         ];
 
         let agentSelectionneId = null;
@@ -512,6 +559,61 @@
             }
         }
 
+        function ajouterNouvelAgent(event) {
+            event.preventDefault();
+            const nom = document.getElementById('agentNom').value.trim();
+            const grade = document.getElementById('agentGrade').value;
+            const situation = document.getElementById('agentSituation').value;
+            const debut = document.getElementById('dateDebut').value;
+            const fin = document.getElementById('dateFin').value;
+
+            if (!nom) return;
+
+            const nouvelAgent = {
+                id: Date.now(),
+                nom: nom,
+                grade: grade,
+                situation: situation,
+                debut: debut,
+                fin: fin,
+                notes: "Nouvel agent créé."
+            };
+
+            agentsDb.push(nouvelAgent);
+            mettreAJourInterface();
+        }
+
+        function sauvegarderFicheAgent(event, id) {
+            event.preventDefault();
+            const agent = agentsDb.find(a => a.id === id);
+            if (agent) {
+                agent.nom = document.getElementById('agentNomEdit').value.trim();
+                agent.grade = document.getElementById('agentGradeEdit').value;
+                agent.situation = document.getElementById('agentSituationEdit').value;
+                agent.debut = document.getElementById('dateDebutEdit').value;
+                agent.fin = document.getElementById('dateFinEdit').value;
+                agent.notes = document.getElementById('noteZoneEdit').value;
+                mettreAJourInterface();
+            }
+        }
+
+        // Nouvelle Fonction : Supprimer un Agent de la base
+        function supprimerFicheAgent(id) {
+            const agent = agentsDb.find(a => a.id === id);
+            if (agent) {
+                if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement la fiche de l'agent : ${agent.nom} ?`)) {
+                    agentsDb = agentsDb.filter(a => a.id !== id);
+                    agentSelectionneId = null; // Revenir au mode création
+                    mettreAJourInterface();
+                }
+            }
+        }
+
+        function revenirCreation() {
+            agentSelectionneId = null;
+            mettreAJourInterface();
+        }
+
         function afficherPanneauContexte() {
             if (agentSelectionneId === null) {
                 contextPanel.innerHTML = `
@@ -532,7 +634,7 @@
                         </div>
                         <div class="form-group">
                             <label>Situation administrative</label>
-                            <select id="agentSituation" onchange="gererChampsDatesFormulaire('')">
+                            <select id="agentSituation" onchange="genererChampsDatesFormulaire('')">
                                 <option value="aucun">En poste (Aucune modification)</option>
                                 <option value="clm">CLM (Congé Longue Maladie)</option>
                                 <option value="cld">CLD (Congé Longue Durée)</option>
@@ -578,7 +680,7 @@
                         </div>
                         <div class="form-group">
                             <label>Situation administrative</label>
-                            <select id="agentSituationEdit" onchange="gererChampsDatesFormulaire('Edit')">
+                            <select id="agentSituationEdit" onchange="genererChampsDatesFormulaire('Edit')">
                                 <option value="aucun" ${agent.situation === 'aucun' ? 'selected' : ''}>En poste (Aucune modification)</option>
                                 <option value="clm" ${agent.situation === 'clm' ? 'selected' : ''}>CLM (Congé Longue Maladie)</option>
                                 <option value="cld" ${agent.situation === 'cld' ? 'selected' : ''}>CLD (Congé Longue Durée)</option>
@@ -592,208 +694,4 @@
                                 <option value="dispo" ${agent.situation === 'dispo' ? 'selected' : ''}>Congé Disponibilité</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Date de début</label>
-                            <input type="date" id="dateDebutEdit" value="${agent.debut || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label>Date de fin / Échéance</label>
-                            <input type="date" id="dateFinEdit" value="${agent.fin || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label>Notes de suivi & Observations</label>
-                            <textarea id="noteZoneEdit" placeholder="Saisissez vos remarques internes paie...">${agent.notes || ''}</textarea>
-                        </div>
-                        <button type="submit" class="btn-submit">Mettre à jour l'agent & l'impact paie</button>
-                        <button type="button" class="btn-submit btn-secondary" onclick="revenirCreation()">+ Enregistrer et passer au mode création</button>
-                    </form>
-                `;
-                gererChampsDatesFormulaire('Edit');
-            }
-        }
-
-        function genererTaches() {
-            todoListContainer.innerHTML = "";
-            if (listeTaches.length === 0) {
-                todoListContainer.innerHTML = `<li class="empty-message" style="padding:10px 0;">Aucune action enregistrée.</li>`;
-                return;
-            }
-            listeTaches.forEach(tache => {
-                const li = document.createElement('li');
-                li.className = "todo-item";
-                li.innerHTML = `
-                    <div class="todo-item-left">
-                        <input type="checkbox" ${tache.cochee ? 'checked' : ''} onclick="basculerTache(${tache.id})">
-                        <span class="todo-text ${tache.cochee ? 'completed' : ''}">${tache.texte}</span>
-                    </div>
-                    <button class="btn-delete-todo" onclick="supprimerTache(${tache.id})">×</button>
-                `;
-                todoListContainer.appendChild(li);
-            });
-        }
-
-        function ajouterTache() {
-            const texte = newTodoInput.value.trim();
-            if (texte === "") return;
-            listeTaches.push({ id: Date.now(), texte: texte, cochee: false });
-            newTodoInput.value = "";
-            genererTaches();
-        }
-
-        function basculerTache(id) {
-            const t = listeTaches.find(x => x.id === id);
-            if (t) { t.cochee = !t.cochee; genererTaches(); }
-        }
-
-        function supprimerTache(id) {
-            listeTaches = listeTaches.filter(x => x.id !== id);
-            genererTaches();
-        }
-
-        function sauvegarderRappelMensuel() {
-            const m = parseInt(monthSelector.value);
-            memoInstitutionnelParMois[m] = editableReminderArea.value.trim();
-            alert(`Notes institutionnelles enregistrées pour ${nomsDesMois[m]}.`);
-        }
-
-        // 4. Moteur de calcul des incidences RH & Règles de Paie mis à jour
-        function genererIncidencesEtRappels() {
-            const moisSelectionne = parseInt(monthSelector.value);
-            const anneeCible = 2026;
-            tableBody.innerHTML = "";
-            let countIncidences = 0;
-
-            reminderTitle.innerText = `📅 Rappels Institutionnels — ${nomsDesMois[moisSelectionne]}`;
-            editableReminderArea.value = memoInstitutionnelParMois[moisSelectionne] || "";
-
-            agentsDb.forEach(agent => {
-                const debutMois = new Date(anneeCible, moisSelectionne, 1);
-                const finMois = new Date(anneeCible, moisSelectionne + 1, 0);
-                
-                let estConcerne = false;
-                let impact = "100%";
-                let styleClass = "mod-100";
-                let consigne = "Aucune anomalie détectée.";
-
-                if (agent.situation !== "aucun" && agent.debut && agent.fin) {
-                    const dateDeb = new Date(agent.debut);
-                    const dateFin = new Date(agent.fin);
-
-                    if (dateDeb <= finMois && dateFin >= debutMois) {
-                        estConcerne = true;
-                        const dynamicDiffMois = (debutMois.getFullYear() - dateDeb.getFullYear()) * 12 + (debutMois.getMonth() - dateDeb.getMonth());
-
-                        switch(agent.situation) {
-                            case "clm":
-                                if (dynamicDiffMois >= 6) {
-                                    impact = "50%"; styleClass = "mod-50";
-                                    consigne = "CLM > 6 mois : Application du demi-traitement paie.";
-                                } else {
-                                    consigne = "CLM phase initiale (<6 mois) : Plein traitement maintenu.";
-                                }
-                                break;
-                            case "cld":
-                                if (dynamicDiffMois >= 12) {
-                                    impact = "50%"; styleClass = "mod-50";
-                                    consigne = "CLD > 12 mois : Application de la décote réglementaire.";
-                                } else {
-                                    consigne = "CLD phase initiale (<1 an) : Maintien intégral de base.";
-                                }
-                                break;
-                            case "mat":
-                                consigne = "Congé Maternité : Maintien de salaire à 100% (Subrogation CSS).";
-                                break;
-                            case "parental":
-                                impact = "0%"; styleClass = "mod-0";
-                                consigne = "Congé parental d'éducation : Traitement suspendu sur la période.";
-                                break;
-                            case "tpth":
-                                consigne = "Temps Partiel Thérapeutique : Service accompli payé à 100%.";
-                                break;
-                            case "naissance":
-                                consigne = "Congé Naissance exceptionnel : Maintien de salaire (autorisation d'absence).";
-                                break;
-                            case "formation":
-                                impact = "85%"; styleClass = "mod-85";
-                                consigne = "Congé Formation : Traitement de base réduit à 85% au titre de l'indemnité forfaitaire.";
-                                break;
-                            case "dispo":
-                                impact = "0%"; styleClass = "mod-0";
-                                consigne = "Mise en Disponibilité : Position de non-activité. Suspension complète du traitement de paie.";
-                                break;
-                        }
-                    }
-                }
-
-                if (["fin-contrat", "retraite"].includes(agent.situation) && agent.fin) {
-                    const dateFinEvenement = new Date(agent.fin);
-                    if (dateFinEvenement.getMonth() === moisSelectionne && dateFinEvenement.getFullYear() === anneeCible) {
-                        estConcerne = true;
-                        if (agent.situation === "fin-contrat") {
-                            consigne = `⚠️ Fin de contrat le ${dateFinEvenement.toLocaleDateString('fr-FR')}. Sortie des effectifs, calculer solde de tout compte & ICCP.`;
-                        } else if (agent.situation === "retraite") {
-                            consigne = `🎓 Radiation des cadres pour Retraite au ${dateFinEvenement.toLocaleDateString('fr-FR')}. Calcul de l'indemnité de départ si applicable.`;
-                        }
-                    }
-                }
-
-                if (estConcerne) {
-                    countIncidences++;
-                    const row = `<tr>
-                        <td><strong>${agent.nom}</strong></td>
-                        <td><span class="badge badge-${agent.grade}">${labelGrades[agent.grade]}</span></td>
-                        <td><span class="badge badge-sit badge-${agent.situation}">${labelSituations[agent.situation]}</span></td>
-                        <td><span class="mod-type ${styleClass}">${impact}</span></td>
-                        <td>${consigne}</td>
-                    </tr>`;
-                    tableBody.innerHTML += row;
-                }
-            });
-
-            if (countIncidences === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="empty-message">Aucun mouvement à régulariser en paie pour ce mois.</td></tr>`;
-            }
-            badgeIncidences.innerText = countIncidences;
-        }
-
-        function sauvegarderFicheAgent(e, id) {
-            e.preventDefault();
-            const agent = agentsDb.find(a => a.id === id);
-            if (agent) {
-                agent.nom = document.getElementById('agentNomEdit').value.trim();
-                agent.grade = document.getElementById('agentGradeEdit').value;
-                agent.situation = document.getElementById('agentSituationEdit').value;
-                agent.debut = document.getElementById('dateDebutEdit').value;
-                agent.fin = document.getElementById('dateFinEdit').value;
-                agent.notes = document.getElementById('noteZoneEdit').value;
-                
-                alert(`Fiche mise à jour avec succès pour l'agent : ${agent.nom}`);
-                mettreAJourInterface();
-            }
-        }
-
-        function ajouterNouvelAgent(e) {
-            e.preventDefault();
-            const nouvelAgent = {
-                id: Date.now(),
-                nom: document.getElementById('agentNom').value.trim(),
-                grade: document.getElementById('agentGrade').value,
-                situation: document.getElementById('agentSituation').value,
-                debut: document.getElementById('dateDebut').value,
-                fin: document.getElementById('dateFin').value,
-                notes: ""
-            };
-            agentsDb.push(nouvelAgent);
-            agentSelectionneId = nouvelAgent.id;
-            mettreAJourInterface();
-        }
-
-        function revenirCreation() {
-            agentSelectionneId = null;
-            mettreAJourInterface();
-        }
-
-        window.onload = mettreAJourInterface;
-    </script>
-</body>
-</html>
+                        <div class
