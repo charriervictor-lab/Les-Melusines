@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Mélusines — Pilotage RH & Paie</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 { margin: 0; font-size: 24px; }
+        header p { margin: 5px 0 0 0; opacity: 0.9; font-size: 14px; }
+        .brand-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: linear-gradient(120deg, #fef08a, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Grille principale */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 320px 450px 1fr;
+            }
+        }
+
+        .center-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Style des panneaux */
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .panel h2 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #1e3a8a;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Colonne Gauche : Annuaire */
+        .agent-list {
+            max-height: 700px;
+            overflow-y: auto;
+        }
+
+        .agent-item {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s, border-left 0.2s;
+            border-left: 0px solid #2563eb;
+        }
+        .agent-item:hover { background-color: #f8fafc; }
+        .agent-item.active {
+            background-color: #eff6ff;
+            border-left: 4px solid #2563eb;
+        }
+        .agent-item .name { font-weight: 600; font-size: 14px; }
+
+        /* Formulaires */
+        .form-group { margin-bottom: 12px; }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #4b5563;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            background-color: #f9fafb;
+        }
+        .form-group textarea {
+            resize: vertical;
+            height: 100px;
+            font-family: inherit;
+        }
+        .form-group input:disabled, .form-group select:disabled {
+            background-color: #e5e7eb;
+            cursor: not-allowed;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 10px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 5px;
+        }
+        .btn-submit:hover { background-color: #1d4ed8; }
+        
+        .btn-secondary {
+            background-color: #94a3b8;
+            margin-top: 8px;
+        }
+        .btn-secondary:hover { background-color: #64748b; }
+
+        /* To-Do List */
+        .todo-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .todo-input-group input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .btn-add-todo {
+            padding: 8px 14px;
+            background-color: #059669;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-add-todo:hover { background-color: #047857; }
+
+        .todo-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px;
+        }
+        .todo-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .todo-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .todo-text.completed {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        .btn-delete-todo {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .btn-delete-todo:hover { color: #b91c1c; }
+
+        /* Rappels Institutionnels */
+        .reminder-editable-panel {
+            background-color: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-left: 4px solid #d97706;
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .reminder-editable-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #b45309;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .reminder-editable-panel textarea {
+            width: 100%;
+            height: 80px;
+            font-size: 12.5px;
+            border: 1px solid #fde68a;
+            border-radius: 6px;
+            padding: 8px;
+            background-color: #fffdf5;
+            color: #78350f;
+            resize: vertical;
+        }
+        .btn-save-reminder {
+            padding: 4px 10px;
+            background-color: #d97706;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-save-reminder:hover { background-color: #b45309; }
+
+        /* Tableau */
+        .month-filter-focus {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 2px solid #2563eb;
+            font-size: 13px;
+            font-weight: bold;
+            background-color: #eff6ff;
+            color: #1e40af;
+            cursor: pointer;
+        }
+
+        .alert-count {
+            background-color: #ef4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; padding: 12px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+
+        /* Badges de Grades */
+        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center;}
+        .badge-titulaire { background-color: #dcfce7; color: #166534; }
+        .badge-suppleant { background-color: #fef9c3; color: #854d0e; }
+        .badge-alternant { background-color: #e0f2fe; color: #0369a1; }
+        .badge-stagiaire { background-color: #f3e8ff; color: #6b21a8; }
+
+        /* Badges des Situations */
+        .badge-sit { background-color: #e2e8f0; color: #334155; }
+        .badge-clm { background-color: #ffedd5; color: #c2410c; }
+        .badge-cld { background-color: #fce7f3; color: #9d174d; }
+        .badge-fin-contrat { background-color: #fee2e2; color: #991b1b; }
+        .badge-tpth { background-color: #e0f2fe; color: #0369a1; }
+        .badge-retraite { background-color: #fef3c7; color: #92400e; }
+        .badge-mat { background-color: #fae8ff; color: #86198f; }
+        .badge-parental { background-color: #f1f5f9; color: #475569; border: 1px dashed #cbd5e1; }
+        .badge-naissance { background-color: #d1fae5; color: #065f46; }
+        .badge-formation { background-color: #e0e7ff; color: #3730a3; }
+        .badge-dispo { background-color: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+        .badge-aucun { background-color: #f3f4f6; color: #4b5563; }
+
+        /* Impact Traitement */
+        .mod-type { font-weight: 600; padding: 2px 6px; border-radius: 4px; font-size: 11px; text-align: center; display: inline-block; min-width: 45px;}
+        .mod-100 { background-color: #dcfce7; color: #15803d; }
+        .mod-85  { background-color: #e0f2fe; color: #0369a1; }
+        .mod-50  { background-color: #fef3c7; color: #b45309; }
+        .mod-0   { background-color: #fee2e2; color: #b91c1c; }
+
+        .empty-message { text-align: center; padding: 30px; color: #6b7280; font-style: italic; }
+        
+        .info-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div>
+                <h1>Portail RH — Gestion des Dossiers Individuels & Paie</h1>
+                <p>Suivi dynamique par grade et gestion automatisée des situations réglementaires.</p>
+            </div>
+            <div class="brand-title">les mélusines</div>
+        </header>
+
+        <div class="main-layout">
+            
+            <!-- Gauche : Fiches des Agents -->
+            <aside class="panel">
+                <h2>Fiches des Agents <span id="totalAgentsBadge" class="alert-count" style="background-color: #4b5563;">0</span></h2>
+                <div class="agent-list" id="alphabeticalAnnuary"></div>
+            </aside>
+
+            <!-- Milieu : Formulaires dynamiques (Création / Modification) & To-Do -->
+            <div class="center-layout">
+                <aside class="panel" id="contextPanel"></aside>
+
+                <aside class="panel">
+                    <h2>📋 Tâches du jour à faire</h2>
+                    <div class="todo-input-group">
+                        <input type="text" id="newTodoInput" placeholder="Ajouter une tâche...">
+                        <button class="btn-add-todo" onclick="ajouterTache()">Ajouter</button>
+                    </div>
+                    <ul class="todo-list" id="todoListContainer"></ul>
+                </aside>
+            </div>
+
+            <!-- Droite : Calculateur d'incidences et Rappels -->
+            <main style="display: flex; flex-direction: column; gap: 20px;">
+                
+                <div class="reminder-editable-panel">
+                    <h3>
+                        <span id="reminderTitle">📅 Rappels Institutionnels</span>
+                        <button class="btn-save-reminder" onclick="sauvegarderRappelMensuel()">Enregistrer les rappels</button>
+                    </h3>
+                    <textarea id="editableReminderArea" placeholder="Aucun rappel institutionnel configuré pour ce mois..."></textarea>
+                </div>
+
+                <div class="panel">
+                    <h2>
+                        Suivi des mouvements & Paie : 
+                        <select id="monthSelector" class="month-filter-focus">
+                            <option value="0">Janvier 2026</option>
+                            <option value="1">Février 2026</option>
+                            <option value="2">Mars 2026</option>
+                            <option value="3">Avril 2026</option>
+                            <option value="4">Mai 2026</option>
+                            <option value="5">Juin 2026</option>
+                            <option value="6">Juillet 2026</option>
+                            <option value="7">Août 2026</option>
+                            <option value="8" selected>Septembre 2026</option>
+                            <option value="9">Octobre 2026</option>
+                            <option value="10">Novembre 2026</option>
+                            <option value="11">Décembre 2026</option>
+                        </select>
+                        <span id="badgeIncidences" class="alert-count">0</span>
+                    </h2>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Agent</th>
+                                    <th>Grade</th>
+                                    <th>Situation Administrative</th>
+                                    <th>Impact Base</th>
+                                    <th>Consigne de saisie paie</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <script>
+        // Base de données incluant de nouveaux exemples de tests pour la formation et la dispo
+        let agentsDb = [
+            { id: 1, nom: "Albert Thomas", grade: "titulaire", situation: "aucun", debut: "", fin: "", notes: "En poste à temps complet." },
+            { id: 2, nom: "Bernard Lucas", grade: "suppleant", situation: "mat", debut: "2026-08-10", fin: "2026-12-15", notes: "Remplacement congé maternité actif." },
+            { id: 3, nom: "Durand Carine", grade: "titulaire", situation: "clm", debut: "2026-02-01", fin: "2026-11-30", notes: "CLM en cours. Passage à demi-traitement automatique après 6 mois." },
+            { id: 4, nom: "Gauthier Nicolas", grade: "alternant", situation: "tpth", debut: "2026-09-01", fin: "2026-10-31", notes: "Temps Partiel Thérapeutique accordé suite à avis médical." },
+            { id: 5, nom: "Martin Sophie", grade: "suppleant", situation: "fin-contrat", debut: "", fin: "2026-09-30", notes: "Fin de contrat programmée fin de mois." },
+            { id: 6, nom: "Zimmermann Loïc", grade: "titulaire", situation: "cld", debut: "2025-05-01", fin: "2026-09-15", notes: "CLD long. Reprise attendue mi-septembre." },
+            { id: 7, nom: "Chauvet Amandine", grade: "stagiaire", situation: "naissance", debut: "2026-09-03", fin: "2026-09-06", notes: "Congé de naissance exceptionnel accordé (3 jours)." },
+            { id: 8, nom: "Dupont Jean-Marc", grade: "titulaire", situation: "retraite", debut: "", fin: "2026-09-30", notes: "Départ à la retraite validé." },
+            { id: 9, nom: "Lefebvre Chloé", grade: "alternant", situation: "parental", debut: "2026-04-01", fin: "2026-10-01", notes: "Congé parental d'éducation. Traitement suspendu." },
+            { id: 10, nom: "Rousseau Pierre", grade: "titulaire", situation: "formation", debut: "2026-09-01", fin: "2027-06-30", notes: "Congé de formation professionnelle accordé." },
+            { id: 11, nom: "Moreau Virginie", grade: "titulaire", situation: "dispo", debut: "2026-05-01", fin: "2027-05-01", notes: "Mise en disponibilité pour convenances personnelles." }
+        ];
+
+        const labelGrades = {
+            "titulaire": "Titulaire", "suppleant": "Suppléant",
+            "alternant": "Alternant", "stagiaire": "Stagiaire"
+        };
+
+        const labelSituations = {
+            "aucun": "En poste (Aucune)", "clm": "CLM", "cld": "CLD",
+            "fin-contrat": "Fin de contrat", "tpth": "TPTH", "retraite": "Retraite",
+            "mat": "Congé Maternité", "parental": "Congé Parental", "naissance": "Congé Naissance",
+            "formation": "Congé Formation", "dispo": "Congé Disponibilité"
+        };
+
+        let memoInstitutionnelParMois = {
+            8: "• Septembre : Lancement de la campagne de paie de rentrée. Vérification des contrats alternants et suivi strict des agents en disponibilité et formation."
+        };
+
+        let listeTaches = [
+            { id: 1, texte: "Contrôler les attestations de reprise de TPTH", cochee: false },
+            { id: 2, texte: "Vérifier le montant forfaitaire indemnité formation P. Rousseau", cochee: false }
+        ];
+
+        let agentSelectionneId = null;
+
+        const monthSelector = document.getElementById('monthSelector');
+        const tableBody = document.getElementById('tableBody');
+        const badgeIncidences = document.getElementById('badgeIncidences');
+        const totalAgentsBadge = document.getElementById('totalAgentsBadge');
+        const annuaryContainer = document.getElementById('alphabeticalAnnuary');
+        const contextPanel = document.getElementById('contextPanel');
+        const todoListContainer = document.getElementById('todoListContainer');
+        const newTodoInput = document.getElementById('newTodoInput');
+        const editableReminderArea = document.getElementById('editableReminderArea');
+        const reminderTitle = document.getElementById('reminderTitle');
+
+        const nomsDesMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+        monthSelector.addEventListener('change', mettreAJourInterface);
+        newTodoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') ajouterTache(); });
+
+        function mettreAJourInterface() {
+            agentsDb.sort((a, b) => a.nom.localeCompare(b.nom));
+            genererAnnuaire();
+            genererIncidencesEtRappels();
+            afficherPanneauContexte();
+            genererTaches();
+        }
+
+        function genererAnnuaire() {
+            annuaryContainer.innerHTML = "";
+            totalAgentsBadge.innerText = agentsDb.length;
+
+            agentsDb.forEach(agent => {
+                const item = document.createElement('div');
+                item.className = `agent-item ${agentSelectionneId === agent.id ? 'active' : ''}`;
+                item.onclick = () => {
+                    agentSelectionneId = agent.id;
+                    mettreAJourInterface();
+                };
+                item.innerHTML = `
+                    <span class="name">${agent.nom}</span>
+                    <span class="badge badge-${agent.grade}">${labelGrades[agent.grade]}</span>
+                `;
+                annuaryContainer.appendChild(item);
+            });
+        }
+
+        function gererChampsDatesFormulaire(suffixe = '') {
+            const situation = document.getElementById('agentSituation' + suffixe).value;
+            const dateDebut = document.getElementById('dateDebut' + suffixe);
+            const dateFin = document.getElementById('dateFin' + suffixe);
+
+            const aBesoinDeDates = ["clm", "cld", "fin-contrat", "tpth", "retraite", "mat", "parental", "naissance", "formation", "dispo"];
+
+            if (aBesoinDeDates.includes(situation)) {
+                dateDebut.disabled = false;
+                dateFin.disabled = false;
+                dateDebut.required = !["fin-contrat", "retraite"].includes(situation);
+                dateFin.required = true;
+            } else {
+                dateDebut.disabled = true;
+                dateFin.disabled = true;
+                dateDebut.required = false;
+                dateFin.required = false;
+                dateDebut.value = "";
+                dateFin.value = "";
+            }
+        }
+
+        function afficherPanneauContexte() {
+            if (agentSelectionneId === null) {
+                contextPanel.innerHTML = `
+                    <h2>Nouvel Agent / Événement</h2>
+                    <form id="rhForm" onsubmit="ajouterNouvelAgent(event)">
+                        <div class="form-group">
+                            <label>Nom complet de l'agent</label>
+                            <input type="text" id="agentNom" placeholder="Ex: Martin Laura" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Grade / Catégorie</label>
+                            <select id="agentGrade">
+                                <option value="titulaire">Titulaire</option>
+                                <option value="suppleant">Suppléant</option>
+                                <option value="alternant">Alternant</option>
+                                <option value="stagiaire">Stagiaire</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Situation administrative</label>
+                            <select id="agentSituation" onchange="gererChampsDatesFormulaire('')">
+                                <option value="aucun">En poste (Aucune modification)</option>
+                                <option value="clm">CLM (Congé Longue Maladie)</option>
+                                <option value="cld">CLD (Congé Longue Durée)</option>
+                                <option value="fin-contrat">Fin de contrat</option>
+                                <option value="tpth">TPTH (Temps Partiel Thérapeutique)</option>
+                                <option value="retraite">Retraite</option>
+                                <option value="mat">Congé Maternité</option>
+                                <option value="parental">Congé Parental</option>
+                                <option value="naissance">Congé Naissance</option>
+                                <option value="formation">Congé Formation</option>
+                                <option value="dispo">Congé Disponibilité</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date de début</label>
+                            <input type="date" id="dateDebut" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Date de fin / Échéance</label>
+                            <input type="date" id="dateFin" disabled>
+                        </div>
+                        <button type="submit" class="btn-submit">Créer la fiche agent</button>
+                    </form>
+                `;
+            } else {
+                const agent = agentsDb.find(a => a.id === agentSelectionneId);
+
+                contextPanel.innerHTML = `
+                    <h2>Fiche de Modification : ${agent.nom}</h2>
+                    <form onsubmit="sauvegarderFicheAgent(event, ${agent.id})">
+                        <div class="form-group">
+                            <label>Nom complet</label>
+                            <input type="text" id="agentNomEdit" value="${agent.nom}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Grade / Catégorie</label>
+                            <select id="agentGradeEdit">
+                                <option value="titulaire" ${agent.grade === 'titulaire' ? 'selected' : ''}>Titulaire</option>
+                                <option value="suppleant" ${agent.grade === 'suppleant' ? 'selected' : ''}>Suppléant</option>
+                                <option value="alternant" ${agent.grade === 'alternant' ? 'selected' : ''}>Alternant</option>
+                                <option value="stagiaire" ${agent.grade === 'stagiaire' ? 'selected' : ''}>Stagiaire</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Situation administrative</label>
+                            <select id="agentSituationEdit" onchange="gererChampsDatesFormulaire('Edit')">
+                                <option value="aucun" ${agent.situation === 'aucun' ? 'selected' : ''}>En poste (Aucune modification)</option>
+                                <option value="clm" ${agent.situation === 'clm' ? 'selected' : ''}>CLM (Congé Longue Maladie)</option>
+                                <option value="cld" ${agent.situation === 'cld' ? 'selected' : ''}>CLD (Congé Longue Durée)</option>
+                                <option value="fin-contrat" ${agent.situation === 'fin-contrat' ? 'selected' : ''}>Fin de contrat</option>
+                                <option value="tpth" ${agent.situation === 'tpth' ? 'selected' : ''}>TPTH (Temps Partiel Thérapeutique)</option>
+                                <option value="retraite" ${agent.situation === 'retraite' ? 'selected' : ''}>Retraite</option>
+                                <option value="mat" ${agent.situation === 'mat' ? 'selected' : ''}>Congé Maternité</option>
+                                <option value="parental" ${agent.situation === 'parental' ? 'selected' : ''}>Congé Parental</option>
+                                <option value="naissance" ${agent.situation === 'naissance' ? 'selected' : ''}>Congé Naissance</option>
+                                <option value="formation" ${agent.situation === 'formation' ? 'selected' : ''}>Congé Formation</option>
+                                <option value="dispo" ${agent.situation === 'dispo' ? 'selected' : ''}>Congé Disponibilité</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date de début</label>
+                            <input type="date" id="dateDebutEdit" value="${agent.debut || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Date de fin / Échéance</label>
+                            <input type="date" id="dateFinEdit" value="${agent.fin || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Notes de suivi & Observations</label>
+                            <textarea id="noteZoneEdit" placeholder="Saisissez vos remarques internes paie...">${agent.notes || ''}</textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Mettre à jour l'agent & l'impact paie</button>
+                        <button type="button" class="btn-submit btn-secondary" onclick="revenirCreation()">+ Enregistrer et passer au mode création</button>
+                    </form>
+                `;
+                gererChampsDatesFormulaire('Edit');
+            }
+        }
+
+        function genererTaches() {
+            todoListContainer.innerHTML = "";
+            if (listeTaches.length === 0) {
+                todoListContainer.innerHTML = `<li class="empty-message" style="padding:10px 0;">Aucune action enregistrée.</li>`;
+                return;
+            }
+            listeTaches.forEach(tache => {
+                const li = document.createElement('li');
+                li.className = "todo-item";
+                li.innerHTML = `
+                    <div class="todo-item-left">
+                        <input type="checkbox" ${tache.cochee ? 'checked' : ''} onclick="basculerTache(${tache.id})">
+                        <span class="todo-text ${tache.cochee ? 'completed' : ''}">${tache.texte}</span>
+                    </div>
+                    <button class="btn-delete-todo" onclick="supprimerTache(${tache.id})">×</button>
+                `;
+                todoListContainer.appendChild(li);
+            });
+        }
+
+        function ajouterTache() {
+            const texte = newTodoInput.value.trim();
+            if (texte === "") return;
+            listeTaches.push({ id: Date.now(), texte: texte, cochee: false });
+            newTodoInput.value = "";
+            genererTaches();
+        }
+
+        function basculerTache(id) {
+            const t = listeTaches.find(x => x.id === id);
+            if (t) { t.cochee = !t.cochee; genererTaches(); }
+        }
+
+        function supprimerTache(id) {
+            listeTaches = listeTaches.filter(x => x.id !== id);
+            genererTaches();
+        }
+
+        function sauvegarderRappelMensuel() {
+            const m = parseInt(monthSelector.value);
+            memoInstitutionnelParMois[m] = editableReminderArea.value.trim();
+            alert(`Notes institutionnelles enregistrées pour ${nomsDesMois[m]}.`);
+        }
+
+        // 4. Moteur de calcul des incidences RH & Règles de Paie mis à jour
+        function genererIncidencesEtRappels() {
+            const moisSelectionne = parseInt(monthSelector.value);
+            const anneeCible = 2026;
+            tableBody.innerHTML = "";
+            let countIncidences = 0;
+
+            reminderTitle.innerText = `📅 Rappels Institutionnels — ${nomsDesMois[moisSelectionne]}`;
+            editableReminderArea.value = memoInstitutionnelParMois[moisSelectionne] || "";
+
+            agentsDb.forEach(agent => {
+                const debutMois = new Date(anneeCible, moisSelectionne, 1);
+                const finMois = new Date(anneeCible, moisSelectionne + 1, 0);
+                
+                let estConcerne = false;
+                let impact = "100%";
+                let styleClass = "mod-100";
+                let consigne = "Aucune anomalie détectée.";
+
+                if (agent.situation !== "aucun" && agent.debut && agent.fin) {
+                    const dateDeb = new Date(agent.debut);
+                    const dateFin = new Date(agent.fin);
+
+                    if (dateDeb <= finMois && dateFin >= debutMois) {
+                        estConcerne = true;
+                        const dynamicDiffMois = (debutMois.getFullYear() - dateDeb.getFullYear()) * 12 + (debutMois.getMonth() - dateDeb.getMonth());
+
+                        switch(agent.situation) {
+                            case "clm":
+                                if (dynamicDiffMois >= 6) {
+                                    impact = "50%"; styleClass = "mod-50";
+                                    consigne = "CLM > 6 mois : Application du demi-traitement paie.";
+                                } else {
+                                    consigne = "CLM phase initiale (<6 mois) : Plein traitement maintenu.";
+                                }
+                                break;
+                            case "cld":
+                                if (dynamicDiffMois >= 12) {
+                                    impact = "50%"; styleClass = "mod-50";
+                                    consigne = "CLD > 12 mois : Application de la décote réglementaire.";
+                                } else {
+                                    consigne = "CLD phase initiale (<1 an) : Maintien intégral de base.";
+                                }
+                                break;
+                            case "mat":
+                                consigne = "Congé Maternité : Maintien de salaire à 100% (Subrogation CSS).";
+                                break;
+                            case "parental":
+                                impact = "0%"; styleClass = "mod-0";
+                                consigne = "Congé parental d'éducation : Traitement suspendu sur la période.";
+                                break;
+                            case "tpth":
+                                consigne = "Temps Partiel Thérapeutique : Service accompli payé à 100%.";
+                                break;
+                            case "naissance":
+                                consigne = "Congé Naissance exceptionnel : Maintien de salaire (autorisation d'absence).";
+                                break;
+                            case "formation":
+                                impact = "85%"; styleClass = "mod-85";
+                                consigne = "Congé Formation : Traitement de base réduit à 85% au titre de l'indemnité forfaitaire.";
+                                break;
+                            case "dispo":
+                                impact = "0%"; styleClass = "mod-0";
+                                consigne = "Mise en Disponibilité : Position de non-activité. Suspension complète du traitement de paie.";
+                                break;
+                        }
+                    }
+                }
+
+                if (["fin-contrat", "retraite"].includes(agent.situation) && agent.fin) {
+                    const dateFinEvenement = new Date(agent.fin);
+                    if (dateFinEvenement.getMonth() === moisSelectionne && dateFinEvenement.getFullYear() === anneeCible) {
+                        estConcerne = true;
+                        if (agent.situation === "fin-contrat") {
+                            consigne = `⚠️ Fin de contrat le ${dateFinEvenement.toLocaleDateString('fr-FR')}. Sortie des effectifs, calculer solde de tout compte & ICCP.`;
+                        } else if (agent.situation === "retraite") {
+                            consigne = `🎓 Radiation des cadres pour Retraite au ${dateFinEvenement.toLocaleDateString('fr-FR')}. Calcul de l'indemnité de départ si applicable.`;
+                        }
+                    }
+                }
+
+                if (estConcerne) {
+                    countIncidences++;
+                    const row = `<tr>
+                        <td><strong>${agent.nom}</strong></td>
+                        <td><span class="badge badge-${agent.grade}">${labelGrades[agent.grade]}</span></td>
+                        <td><span class="badge badge-sit badge-${agent.situation}">${labelSituations[agent.situation]}</span></td>
+                        <td><span class="mod-type ${styleClass}">${impact}</span></td>
+                        <td>${consigne}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                }
+            });
+
+            if (countIncidences === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="empty-message">Aucun mouvement à régulariser en paie pour ce mois.</td></tr>`;
+            }
+            badgeIncidences.innerText = countIncidences;
+        }
+
+        function sauvegarderFicheAgent(e, id) {
+            e.preventDefault();
+            const agent = agentsDb.find(a => a.id === id);
+            if (agent) {
+                agent.nom = document.getElementById('agentNomEdit').value.trim();
+                agent.grade = document.getElementById('agentGradeEdit').value;
+                agent.situation = document.getElementById('agentSituationEdit').value;
+                agent.debut = document.getElementById('dateDebutEdit').value;
+                agent.fin = document.getElementById('dateFinEdit').value;
+                agent.notes = document.getElementById('noteZoneEdit').value;
+                
+                alert(`Fiche mise à jour avec succès pour l'agent : ${agent.nom}`);
+                mettreAJourInterface();
+            }
+        }
+
+        function ajouterNouvelAgent(e) {
+            e.preventDefault();
+            const nouvelAgent = {
+                id: Date.now(),
+                nom: document.getElementById('agentNom').value.trim(),
+                grade: document.getElementById('agentGrade').value,
+                situation: document.getElementById('agentSituation').value,
+                debut: document.getElementById('dateDebut').value,
+                fin: document.getElementById('dateFin').value,
+                notes: ""
+            };
+            agentsDb.push(nouvelAgent);
+            agentSelectionneId = nouvelAgent.id;
+            mettreAJourInterface();
+        }
+
+        function revenirCreation() {
+            agentSelectionneId = null;
+            mettreAJourInterface();
+        }
+
+        window.onload = mettreAJourInterface;
+    </script>
+</body>
+</html>
