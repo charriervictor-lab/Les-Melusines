@@ -3,620 +3,688 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portail RH — Les Mélusines</title>
+    <title>Système d'Information RH (SIRH) — Les Mélusines</title>
     <style>
         :root {
-            --primary: #1e3a8a;
-            --primary-light: #eff6ff;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --bg: #f8fafc;
-            --text: #1e293b;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-900: #0f172a;
+            
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --blue-900: #1e3a8a;
+
+            --emerald-600: #10b981;
+            --amber-600: #d97706;
+            --rose-600: #e11d48;
+            
+            --radius-md: 8px;
+            --radius-lg: 14px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
+            background-color: #f4f6f9;
+            color: var(--slate-700);
+            min-height: 100vh;
+            padding: 24px;
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1850px;
             margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* App Header */
+        .app-header {
+            background: linear-gradient(135deg, var(--blue-900) 0%, #1e40af 100%);
+            color: white;
+            padding: 24px 32px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .app-header p {
+            font-size: 14px;
+            color: var(--blue-100);
+            margin-top: 4px;
+        }
+
+        .select-wrapper select {
+            appearance: none;
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            padding: 10px 40px 10px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .select-wrapper select:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .select-wrapper select option {
+            color: var(--slate-900);
+        }
+
+        /* Architecture à 3 Colonnes */
+        .app-layout {
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: 24px;
         }
 
-        header {
-            grid-column: 1 / -1;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        @media (min-width: 1280px) {
+            .app-layout {
+                grid-template-columns: 380px 1fr 1fr;
+            }
         }
 
-        h1, h2, h3 { margin: 0; }
-
-        .select-mois {
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Panneau Gauche : Annuaire */
-        .sidebar {
+        /* Panneaux Génériques */
+        .panel {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
-        }
-
-        .agent-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .agent-card:hover {
-            border-color: #3b82f6;
-            background-color: var(--primary-light);
-        }
-
-        .agent-card.selected {
-            border-color: #2563eb;
-            background-color: #dbeafe;
-        }
-
-        .agent-info {
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
             display: flex;
             flex-direction: column;
+            gap: 16px;
         }
 
-        .agent-sub {
-            font-size: 0.8rem;
-            color: #64748b;
+        .panel-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--slate-900);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--slate-200);
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .btn-delete-agent {
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .btn-delete-agent:hover {
-            background-color: #fee2e2;
-        }
-
-        /* Contenu Principal */
-        .main-content {
+        /* Colonnes internes de flux */
+        .column-flow {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
         }
 
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+        /* Formulaire */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
         }
-
-        /* Rappels & Mémos */
-        .memo-area {
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .field-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--slate-600);
+        }
+        .field-group input, .field-group select, .field-group textarea {
             width: 100%;
-            height: 60px;
-            margin: 10px 0;
-            padding: 8px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            resize: none;
-            font-family: inherit;
-        }
-
-        .btn-save {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        /* Tableau des Incidences */
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .badge-count {
-            background-color: #fee2e2;
-            color: #ef4444;
-            padding: 4px 10px;
-            border-radius: 9999px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        th { color: #64748b; font-weight: 600; }
-
-        /* Badges & Modificateurs */
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
-        .badge-a { background-color: #e0f2fe; color: #0369a1; }
-        .badge-b { background-color: #f0fdf4; color: #166534; }
-        .badge-c { background-color: #f5f5f4; color: #44403c; }
-
-        .badge-sit { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; }
-        .badge-aucun { background-color: #f1f5f9; color: #475569; }
-        .badge-clm { background-color: #fef3c7; color: #d97706; }
-        .badge-tpth { background-color: #e0e7ff; color: #4338ca; }
-        .badge-parental { background-color: #fae8ff; color: #a21caf; }
-        .badge-fin-contrat { background-color: #fee2e2; color: #dc2626; }
-
-        .mod-type { font-weight: bold; }
-        .mod-100 { color: var(--success); }
-        .mod-50 { color: var(--warning); }
-        .mod-0 { color: var(--danger); }
-
-        /* To-Do List */
-        .todo-input-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .todo-input-group input {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-        }
-
-        .todo-list {
-            list-style: none;
-            padding: 0;
-            margin: 15px 0 0 0;
-        }
-
-        .todo-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             padding: 10px;
-            border-bottom: 1px solid #f1f5f9;
-            transition: all 0.2s;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            color: var(--slate-900);
+            background-color: var(--slate-50);
+            transition: var(--transition);
         }
-
-        /* Classes d'états To-Do */
-        .surligne-urgent {
+        .field-group input:focus, .field-group select:focus, .field-group textarea:focus {
+            outline: none;
+            border-color: var(--blue-600);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Boutons */
+        .btn {
+            padding: 11px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
             font-weight: 600;
-            color: #854d0e;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary { background: var(--blue-600); color: white; }
+        .btn-primary:hover { background: var(--blue-700); }
+        .btn-secondary { background: var(--slate-100); color: var(--slate-700); }
+        .btn-secondary:hover { background: var(--slate-200); }
+        .btn-danger { background: rgba(225, 29, 72, 0.1); color: var(--rose-600); }
+        .btn-danger:hover { background: rgba(225, 29, 72, 0.2); }
+
+        /* Annuaire Registre */
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+        }
+        .directory-list {
+            max-height: 320px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .directory-item {
+            padding: 12px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+        .directory-item:hover { background-color: var(--slate-50); border-color: var(--slate-600); }
+        .directory-item.active { background-color: var(--blue-50); border-color: var(--blue-600); }
+
+        /* Focus Dossier */
+        .focus-banner {
+            background: linear-gradient(to right, var(--slate-50), white);
+            border-left: 4px solid var(--blue-600);
+            padding: 14px;
+            border-radius: var(--radius-md);
         }
 
-        .raye-termine {
-            text-decoration: line-through;
-            color: #94a3b8;
+        /* Mémo Module */
+        .memo-panel { background-color: #fffbeb; border: 1px solid #fde68a; }
+        .memo-panel .panel-title { color: #92400e; border-bottom-color: #fef3c7; }
+        .memo-textarea {
+            width: 100%;
+            height: 90px;
+            padding: 12px;
+            border: 1px solid #fcd34d;
+            border-radius: var(--radius-md);
+            background: #fffdf5;
+            color: #78350f;
+            font-size: 13px;
+            resize: none;
         }
+
+        /* Tableau Comptable Droite */
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background-color: var(--slate-50); color: var(--slate-600); font-weight: 700; padding: 12px; border-bottom: 2px solid var(--slate-200); }
+        td { padding: 12px; border-bottom: 1px solid var(--slate-200); background-color: white; }
+        tr:hover td { background-color: var(--slate-50); }
+
+        /* Badges & Pills */
+        .badge { display: inline-flex; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .badge-titulaire { background: #dcfce7; color: #14532d; }
+        .badge-suppleant { background: #fef9c3; color: #713f12; }
+        .badge-alternant { background: #e0f2fe; color: #0369a1; }
+        .badge-stagiaire { background: #f3e8ff; color: #581c87; }
+
+        .pill { display: inline-block; padding: 2px 6px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+        .pill-active { background: rgba(225, 29, 72, 0.1); color: var(--rose-600); }
+        .pill-none { background: var(--slate-100); color: var(--slate-600); }
+        .quotite { font-weight: 700; font-family: monospace; }
+
+        /* To-do List */
+        .todo-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); margin-bottom: 8px; }
+        .todo-checkbox { width: 22px; height: 22px; border: 2px solid var(--slate-600); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; background: white; transition: var(--transition); }
+        .todo-checkbox[data-state="1"] { background: #fde047; border-color: #ca8a04; color: #854d0e; }
+        .todo-checkbox[data-state="2"] { background: var(--slate-200); border-color: var(--slate-600); color: var(--slate-600); }
+        .todo-text.state-1 { font-weight: 700; color: #854d0e; }
+        .todo-text.state-2 { text-decoration: line-through; color: var(--slate-600); opacity: 0.6; }
+
+        /* Toasts */
+        #toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+        .toast { background: var(--slate-900); color: white; padding: 14px 24px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; box-shadow: var(--shadow-md); animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .counter-badge { background: var(--slate-900); color: white; padding: 2px 8px; border-radius: 9999px; font-size: 11px; }
+        .alert-badge { background: var(--rose-600); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    
-    <!-- En-tête -->
-    <header>
-        <div>
-            <h2>Portail RH — Ville de Mervent</h2>
-            <small>Suivi réglementaire des paies & indisponibilités (Année 2026)</small>
-        </div>
-        <select id="monthSelector" class="select-mois">
-            <option value="0">Janvier 2026</option>
-            <option value="1">Février 2026</option>
-            <option value="2">Mars 2026</option>
-            <option value="3" selected>Avril 2026</option>
-            <option value="4">Mai 2026</option>
-            <option value="5">Juin 2026</option>
-            <option value="6">Juillet 2026</option>
-            <option value="7">Août 2026</option>
-            <option value="8">Septembre 2026</option>
-            <option value="9">Octobre 2026</option>
-            <option value="10">Novembre 2026</option>
-            <option value="11">Décembre 2026</option>
-        </select>
-    </header>
-
-    <!-- Sidebar : Annuaire -->
-    <aside class="sidebar">
-        <h3 style="margin-bottom: 15px; color: var(--primary);">👤 Annuaire Agents</h3>
-        <div id="directoryContainer">
-            <!-- Injecté par JS -->
-        </div>
-    </aside>
-
-    <!-- Zone principale -->
-    <main class="main-content">
-        
-        <!-- Bloc Mémos -->
-        <section class="card">
-            <h3 id="reminderTitle">📅 Rappels Institutionnels</h3>
-            <textarea id="editableReminderArea" class="memo-area" placeholder="Ajouter des remarques ou jalons obligatoires pour ce mois..."></textarea>
-            <button class="btn-save" onclick="sauvegarderRappelMensuel()">Enregistrer les mémos</button>
-        </section>
-
-        <!-- Tableau d'impact paie -->
-        <section class="card">
-            <div class="table-header">
-                <h3 style="color: var(--primary);">📊 Impacts Paie du Mois</h3>
-                <span id="badgeIncidences" class="badge-count">0 alerte</span>
+    <div class="container">
+        <header class="app-header">
+            <div>
+                <h1>SIRH — Ville de Mervent</h1>
+                <p>Système d'ordonnancement des effectifs et des variables réglementaires de paie (Année 2026)</p>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Agent</th>
-                        <th>Grade</th>
-                        <th>Situation Administrative</th>
-                        <th>Quotité Paie</th>
-                        <th>Consigne de traitement / Action</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- Injecté par JS -->
-                </tbody>
-            </table>
-        </section>
+            <div class="select-wrapper">
+                <select id="monthSelector"></select>
+            </div>
+        </header>
 
-        <!-- To-Do List Plan de charge -->
-        <section class="card">
-            <h3 style="color: var(--primary);">📋 Plan de charge mensuel (Actions)</h3>
-            <small style="color: #64748b;">Cliquez sur l'icône de gauche pour cycler : ⬜ Normal ➔ ⭐ À faire aujourd'hui ➔ ✓ Terminé</small>
+        <div class="app-layout">
             
-            <div class="todo-input-group">
-                <input type="text" id="newTodoInput" placeholder="Saisir une nouvelle action RH...">
-                <button class="btn-save" onclick="ajouterTache()">Ajouter</button>
-            </div>
+            <aside class="column-flow">
+                <div class="panel">
+                    <div class="panel-title" id="formTitle">⚙️ Créer un Profil Agent</div>
+                    <form id="agentForm" class="form-grid">
+                        <div class="field-group">
+                            <label>Nom Complet & Prénom *</label>
+                            <input type="text" id="agentNom" required placeholder="Ex: Legrand Valérie">
+                        </div>
+                        <div class="form-row">
+                            <div class="field-group">
+                                <label>Corps de Grade</label>
+                                <select id="agentGrade">
+                                    <option value="titulaire">Titulaire</option>
+                                    <option value="suppleant">Suppléant</option>
+                                    <option value="alternant">Alternant</option>
+                                    <option value="stagiaire">Stagiaire</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label>Position Admin.</label>
+                                <select id="agentSituation">
+                                    <option value="aucun">En poste (Standard)</option>
+                                    <option value="clm">CLM</option>
+                                    <option value="cld">CLD</option>
+                                    <option value="fin-contrat">Fin de contrat</option>
+                                    <option value="tpth">TPTH</option>
+                                    <option value="retraite">Retraite</option>
+                                    <option value="mat">Congé Maternité</option>
+                                    <option value="parental">Congé Parental</option>
+                                    <option value="naissance">Congé Naissance</option>
+                                    <option value="formation">Congé Formation</option>
+                                    <option value="dispo">Disponibilité</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="field-group">
+                                <label>Début Droit</label>
+                                <input type="date" id="agentDebut">
+                            </div>
+                            <div class="field-group">
+                                <label>Fin Droit</label>
+                                <input type="date" id="agentFin">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label>Notes Internes RH</label>
+                            <textarea id="agentNotes" rows="2" placeholder="Jalons du dossier..."></textarea>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+                            <button type="submit" id="btnSubmitForm" class="btn btn-primary" style="width: 100%;">Ajouter aux effectifs</button>
+                            <button type="button" id="btnCancelEdit" class="btn btn-secondary" style="display: none;">Annuler la saisie</button>
+                            <button type="button" id="btnDeleteAgent" class="btn btn-danger" style="display: none;">Radier l'agent</button>
+                        </div>
+                    </form>
+                </div>
 
-            <ul id="todoListContainer" class="todo-list">
-                <!-- Injecté par JS -->
-            </ul>
-        </section>
+                <div class="panel">
+                    <div class="panel-title">
+                        <span>👤 Registre Unique</span>
+                        <span class="counter-badge" id="totalAgentsBadge">0</span>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="searchAgentInput" placeholder="Rechercher un agent...">
+                    </div>
+                    <div class="directory-list" id="directoryList"></div>
+                </div>
+            </aside>
 
-    </main>
-</div>
+            <section class="column-flow">
+                <div class="panel" id="focusAgentCard" style="display: none; border-left-color: var(--blue-600);">
+                    <div class="panel-title" style="border: none; padding: 0;">🔍 Analyse Individuelle</div>
+                    <div class="focus-banner" id="focusContextContainer"></div>
+                </div>
 
-<!-- Logique applicative JavaScript -->
-<script>
-// ==========================================
-// 1. DONNÉES DE BASE & CONFIGURATION (2026)
-// ==========================================
+                <div class="panel memo-panel">
+                    <div class="panel-title">
+                        <span id="reminderTitle">📅 Jalons Réglementaires</span>
+                        <button class="btn btn-primary" style="padding: 6px 12px; background: var(--amber-600);" id="btnSaveMemo">Fixer</button>
+                    </div>
+                    <textarea id="editableReminderArea" class="memo-textarea" placeholder="Renseigner les obligations RH pour ce mois..."></textarea>
+                </div>
 
-let agentsDb = [
-    { id: 1, nom: "Aude Javel", grade: "c", situation: "aucun", debut: "", fin: "" },
-    { id: 2, nom: "Jean Bonnot", grade: "b", situation: "clm", debut: "2025-11-15", fin: "2026-08-15" },
-    { id: 3, nom: "Sarah Vigote", grade: "a", situation: "fin-contrat", debut: "", fin: "2026-04-30" },
-    { id: 4, nom: "Maud de Pass", grade: "a", situation: "tpth", debut: "2026-01-01", fin: "2026-06-30" },
-    { id: 5, nom: "Lucie d'Idée", grade: "c", situation: "parental", debut: "2025-09-01", fin: "2026-09-01" }
-];
+                <div class="panel">
+                    <div class="panel-title">📋 Plan de Charge Mensuel</div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="newTodoInput" style="flex: 1; padding: 10px; border: 1px solid var(--slate-200); border-radius: var(--radius-md); font-size: 13px;" placeholder="Planifier une action critique...">
+                        <button class="btn btn-primary" id="btnAddTodo">Planifier</button>
+                    </div>
+                    <div id="todoListContainer"></div>
+                </div>
+            </section>
 
-// État de l'application
-let agentSelectionneId = null;
-let listeTaches = [
-    { id: 101, texte: "Transmettre l'état des variables au Trésor Public", etat: 1 },
-    { id: 102, texte: "Vérifier les justificatifs de l'agent Jean Bonnot (CLM)", etat: 0 },
-    { id: 103, texte: "Éditer les arrêtés de fin de contrat de recontractualisation", etat: 2 }
-];
+            <section class="column-flow">
+                <div class="panel" style="height: 100%;">
+                    <div class="panel-title">
+                        <span>📊 Livre de Paie & Incidences</span>
+                        <span class="counter-badge alert-badge" id="badgeIncidences">0 incidence</span>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Agent</th>
+                                    <th>Statut</th>
+                                    <th>Position</th>
+                                    <th>Quotité</th>
+                                    <th>Consigne Paie / Saisie</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 
-const nomsDesMois = [
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-];
+        </div>
+    </div>
 
-const labelGrades = { "a": "Catégorie A", "b": "Catégorie B", "c": "Catégorie C" };
+    <div id="toastContainer"></div>
 
-const labelSituations = {
-    "aucun": "En poste (Standard)",
-    "clm": "Congé Longue Maladie",
-    "cld": "Congé Longue Durée",
-    "fin-contrat": "Fin de contrat / Radiation",
-    "tpth": "Temps Partiel Thérapeutique",
-    "parental": "Congé Parental"
-};
+    <script>
+        class ApplicationRH {
+            constructor() {
+                this.defaultAgents = [
+                    { id: 1, nom: "Albert Thomas", grade: "titulaire", situation: "aucun", debut: "", fin: "", notes: "En poste à temps complet. Dossier standard à jour." },
+                    { id: 2, nom: "Bernard Lucas", grade: "suppleant", situation: "mat", debut: "2026-08-10", fin: "2026-12-15", notes: "Remplacement congé maternité actif." },
+                    { id: 3, nom: "Durand Carine", grade: "titulaire", situation: "clm", debut: "2026-02-01", fin: "2026-11-30", notes: "CLM en cours. Surveillance du passage à demi-traitement." },
+                    { id: 4, nom: "Gauthier Nicolas", grade: "alternant", situation: "tpth", debut: "2026-09-01", fin: "2026-10-31", notes: "Temps Partiel Thérapeutique accordé suite à l'avis du comité médical." },
+                    { id: 5, nom: "Martin Sophie", grade: "suppleant", situation: "fin-contrat", debut: "", fin: "2026-09-30", notes: "Fin de contrat programmée en fin de mois. Préparer le solde de tout compte." },
+                    { id: 6, nom: "Zimmermann Loïc", grade: "titulaire", situation: "cld", debut: "2025-05-01", fin: "2026-09-15", notes: "CLD long terme. Reprise partielle attendue mi-septembre." }
+                ];
 
-// Dictionnaire pour les mémos textuels par mois
-let memoInstitutionnelParMois = {
-    3: "⚠️ Fin d'année de référence des congés pour les contractuels. Relancer les directions de pôle.",
-    4: "Préparation des commissions administratives paritaires (CAP)."
-};
+                this.months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+                this.gradesLabels = { "titulaire": "Titulaire", "suppleant": "Suppléant", "alternant": "Alternant", "stagiaire": "Stagiaire" };
+                this.situationsLabels = {
+                    "aucun": "En poste", "clm": "CLM", "cld": "CLD", "fin-contrat": "Fin Contrat", 
+                    "tpth": "TPTH", "retraite": "Retraite", "mat": "Maternité", "parental": "Parental", 
+                    "naissance": "Naissance", "formation": "Formation", "dispo": "Dispo."
+                };
 
-// Récupération des éléments du DOM
-const directoryContainer = document.getElementById('directoryContainer');
-const tableBody = document.getElementById('tableBody');
-const monthSelector = document.getElementById('monthSelector');
-const reminderTitle = document.getElementById('reminderTitle');
-const editableReminderArea = document.getElementById('editableReminderArea');
-const badgeIncidences = document.getElementById('badgeIncidences');
-const todoListContainer = document.getElementById('todoListContainer');
-const newTodoInput = document.getElementById('newTodoInput');
+                this.state = {
+                    agents: JSON.parse(localStorage.getItem('SIRH_agents')) || this.defaultAgents,
+                    memos: JSON.parse(localStorage.getItem('SIRH_memos')) || { 8: "• Septembre : Campagne de paie de rentrée. Vérification des contrats de l'alternance." },
+                    todos: JSON.parse(localStorage.getItem('SIRH_todos')) || [
+                        { id: 1, texte: "Contrôler les attestations de reprise de TPTH pour N. Gauthier", etat: 1 },
+                        { id: 2, texte: "Transmettre l'état des variables au Trésor Public", etat: 2 }
+                    ],
+                    selectedMonth: 8,
+                    selectedAgentId: null,
+                    searchQuery: ""
+                };
 
-// ==========================================
-// 2. GESTION DE L'ANNUAIRE (AVEC SUPPRESSION)
-// ==========================================
+                this.initDOMReferences();
+                this.initMountingConfig();
+                this.bindEvents();
+                this.render();
+            }
 
-function genererAnnuaire() {
-    directoryContainer.innerHTML = "";
-    
-    if (agentsDb.length === 0) {
-        directoryContainer.innerHTML = "<p style='color:#64748b; padding:10px;'>Aucun agent dans les effectifs.</p>";
-        return;
-    }
+            initDOMReferences() {
+                this.dom = {
+                    monthSelector: document.getElementById('monthSelector'),
+                    tableBody: document.getElementById('tableBody'),
+                    badgeIncidences: document.getElementById('badgeIncidences'),
+                    totalAgentsBadge: document.getElementById('totalAgentsBadge'),
+                    directoryList: document.getElementById('directoryList'),
+                    searchAgentInput: document.getElementById('searchAgentInput'),
+                    focusAgentCard: document.getElementById('focusAgentCard'),
+                    focusContextContainer: document.getElementById('focusContextContainer'),
+                    reminderTitle: document.getElementById('reminderTitle'),
+                    editableReminderArea: document.getElementById('editableReminderArea'),
+                    btnSaveMemo: document.getElementById('btnSaveMemo'),
+                    todoListContainer: document.getElementById('todoListContainer'),
+                    newTodoInput: document.getElementById('newTodoInput'),
+                    btnAddTodo: document.getElementById('btnAddTodo'),
+                    agentForm: document.getElementById('agentForm'),
+                    formTitle: document.getElementById('formTitle'),
+                    btnSubmitForm: document.getElementById('btnSubmitForm'),
+                    btnCancelEdit: document.getElementById('btnCancelEdit'),
+                    btnDeleteAgent: document.getElementById('btnDeleteAgent'),
+                    toastContainer: document.getElementById('toastContainer')
+                };
+            }
 
-    agentsDb.forEach(agent => {
-        const div = document.createElement('div');
-        div.className = `agent-card ${agent.id === agentSelectionneId ? 'selected' : ''}`;
-        
-        // Clic sur la carte pour sélectionner l'agent
-        div.onclick = (e) => {
-            if (e.target.className === 'btn-delete-agent') return;
-            selectionnerAgent(agent.id);
-        };
+            initMountingConfig() {
+                this.months.forEach((m, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = `${m} 2026`;
+                    if(idx === this.state.selectedMonth) opt.selected = true;
+                    this.dom.monthSelector.appendChild(opt);
+                });
+            }
 
-        div.innerHTML = `
-            <div class="agent-info">
-                <strong>${agent.nom}</strong>
-                <span class="agent-sub">${labelGrades[agent.grade]}</span>
-            </div>
-            <button class="btn-delete-agent" onclick="supprimerAgent(${agent.id})" title="Supprimer l'agent">
-                🗑️
-            </button>
-        `;
-        directoryContainer.appendChild(div);
-    });
-}
+            bindEvents() {
+                this.dom.monthSelector.addEventListener('change', (e) => {
+                    this.state.selectedMonth = parseInt(e.target.value);
+                    this.render();
+                });
+                this.dom.searchAgentInput.addEventListener('input', (e) => {
+                    this.state.searchQuery = e.target.value.toLowerCase();
+                    this.renderDirectory();
+                });
+                this.dom.agentForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+                this.dom.btnCancelEdit.addEventListener('click', () => this.resetFormState());
+                this.dom.btnDeleteAgent.addEventListener('click', () => this.handleAgentDeletion());
+                this.dom.btnSaveMemo.addEventListener('click', () => this.handleMemoSave());
+                this.dom.btnAddTodo.addEventListener('click', () => this.handleAddTodo());
+                this.dom.newTodoInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') this.handleAddTodo(); });
+            }
 
-function selectionnerAgent(id) {
-    agentSelectionneId = (agentSelectionneId === id) ? null : id;
-    mettreAJourInterface();
-}
+            persist(key) { localStorage.setItem(`SIRH_${key}`, JSON.stringify(this.state[key])); }
 
-/**
- * Supprime un agent du personnel après confirmation
- */
-function supprimerAgent(id) {
-    const agent = agentsDb.find(a => a.id === id);
-    if (!agent) return;
+            pushToast(msg) {
+                const el = document.createElement('div');
+                el.className = 'toast';
+                el.textContent = msg;
+                this.dom.toastContainer.appendChild(el);
+                setTimeout(() => el.remove(), 3500);
+            }
 
-    if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement l'agent ${agent.nom} des effectifs ?`)) {
-        agentsDb = agentsDb.filter(a => a.id !== id);
-        if (agentSelectionneId === id) agentSelectionneId = null;
-        mettreAJourInterface();
-    }
-}
+            isEventActiveInSelectedMonth(agent) {
+                if (!agent.debut && !agent.fin) return agent.situation !== "aucun";
+                const start = agent.debut ? new Date(agent.debut) : new Date(2026, 0, 1);
+                const end = agent.fin ? new Date(agent.fin) : new Date(2026, 11, 31);
+                const firstDay = new Date(2026, this.state.selectedMonth, 1);
+                const lastDay = new Date(2026, this.state.selectedMonth + 1, 0);
+                return (start <= lastDay && end >= firstDay);
+            }
 
-// ==========================================
-// 3. LOGIQUE D'IMPACT SUR LA PAIE
-// ==========================================
+            handleFormSubmit(e) {
+                e.preventDefault();
+                const nom = document.getElementById('agentNom').value.trim();
+                if(!nom) return;
 
-function calculerImpactPaie(agent, moisSelectionne) {
-    let impact = 100;
-    let consigne = "Plein traitement (Maintien de base)";
-    
-    if (agent.situation === "aucun") {
-        return { impact, consigne };
-    }
+                const payload = {
+                    nom,
+                    grade: document.getElementById('agentGrade').value,
+                    situation: document.getElementById('agentSituation').value,
+                    debut: document.getElementById('agentDebut').value,
+                    fin: document.getElementById('agentFin').value,
+                    notes: document.getElementById('agentNotes').value
+                };
 
-    const anneeRef = 2026;
-    const premierDuMois = new Date(anneeRef, moisSelectionne, 1);
-    const dernierDuMois = new Date(anneeRef, moisSelectionne + 1, 0);
-
-    const dateDebutAgent = agent.debut ? new Date(agent.debut) : null;
-    const dateFinAgent = agent.fin ? new Date(agent.fin) : null;
-
-    if (dateDebutAgent && dateDebutAgent > dernierDuMois) return null;
-    if (dateFinAgent && dateFinAgent < premierDuMois) return null;
-
-    switch (agent.situation) {
-        case "clm":
-            if (dateDebutAgent) {
-                const datePivotDemiTraitement = new Date(dateDebutAgent);
-                datePivotDemiTraitement.setMonth(datePivotDemiTraitement.getMonth() + 6);
-
-                if (dernierDuMois < datePivotDemiTraitement) {
-                    impact = 100;
-                    consigne = "CLM (< 6 mois) : Plein traitement maintenu.";
-                } else if (premierDuMois >= datePivotDemiTraitement) {
-                    impact = 50;
-                    consigne = "⚠️ CLM (> 6 mois) : Passage automatique à demi-traitement.";
+                if(this.state.selectedAgentId) {
+                    this.state.agents = this.state.agents.map(a => a.id === this.state.selectedAgentId ? { ...a, ...payload } : a);
+                    this.pushToast(`📁 Fiche de ${nom} mise à jour.`);
                 } else {
-                    impact = 50; 
-                    consigne = `Prorata : Passage à 50% le ${datePivotDemiTraitement.toLocaleDateString('fr-FR')}.`;
+                    const newAgent = { id: Date.now(), ...payload };
+                    this.state.agents.push(newAgent);
+                    this.pushToast(`➕ ${nom} ajouté au registre.`);
+                }
+
+                this.persist('agents');
+                this.resetFormState();
+                this.render();
+            }
+
+            handleAgentDeletion() {
+                if(!this.state.selectedAgentId) return;
+                const target = this.state.agents.find(a => a.id === this.state.selectedAgentId);
+                if(confirm(`Confirmer la radiation de : ${target.nom} ?`)) {
+                    this.state.agents = this.state.agents.filter(a => a.id !== this.state.selectedAgentId);
+                    this.persist('agents');
+                    this.pushToast(`⚠️ Agent ${target.nom} supprimé.`);
+                    this.resetFormState();
+                    this.render();
                 }
             }
-            break;
 
-        case "fin-contrat":
-            impact = 0;
-            const dateFinAffichage = dateFinAgent ? dateFinAgent.toLocaleDateString('fr-FR') : "fin de mois";
-            consigne = `❌ Fin de contrat au ${dateFinAffichage}. Bloquer la paie suivante.`;
-            break;
+            handleMemoSave() {
+                this.state.memos[this.state.selectedMonth] = this.dom.editableReminderArea.value;
+                this.persist('memos');
+                this.pushToast(`💾 Rappels sauvegardés.`);
+            }
 
-        case "tpth":
-            impact = 100;
-            consigne = "Temps partiel thérapeutique : Maintenir 100% du brut (Subrogation IJSS).";
-            break;
+            handleAddTodo() {
+                const txt = this.dom.newTodoInput.value.trim();
+                if(!txt) return;
+                this.state.todos.push({ id: Date.now(), texte: txt, etat: 0 });
+                this.dom.newTodoInput.value = "";
+                this.persist('todos');
+                this.renderTodos();
+            }
 
-        case "parental":
-            impact = 0;
-            consigne = "Congé Parental : Traitement suspendu à 100%.";
-            break;
-            
-        default:
-            impact = 100;
-            consigne = "En poste (Aucune modification)";
-    }
+            resetFormState() {
+                this.state.selectedAgentId = null;
+                this.dom.agentForm.reset();
+                this.dom.formTitle.textContent = "⚙️ Créer un Profil Agent";
+                this.dom.btnSubmitForm.textContent = "Ajouter aux effectifs";
+                this.dom.btnCancelEdit.style.display = "none";
+                this.dom.btnDeleteAgent.style.display = "none";
+                this.render();
+            }
 
-    return { impact, consigne };
-}
+            loadAgentIntoForm(id) {
+                const a = this.state.agents.find(agent => agent.id === id);
+                if(!a) return;
 
-function genererIncidencesEtRappels() {
-    tableBody.innerHTML = "";
-    const moisEnCours = parseInt(monthSelector.value, 10);
-    
-    reminderTitle.innerText = `📅 Rappels Institutionnels — ${nomsDesMois[moisEnCours]} 2026`;
-    editableReminderArea.value = memoInstitutionnelParMois[moisEnCours] || "";
+                this.state.selectedAgentId = id;
+                this.dom.formTitle.textContent = "⚙️ Éditer la Fiche";
+                
+                document.getElementById('agentNom').value = a.nom;
+                document.getElementById('agentGrade').value = a.grade;
+                document.getElementById('agentSituation').value = a.situation;
+                document.getElementById('agentDebut').value = a.debut || "";
+                document.getElementById('agentFin').value = a.fin || "";
+                document.getElementById('agentNotes').value = a.notes || "";
 
-    let compteurIncidencesMois = 0;
+                this.dom.btnSubmitForm.textContent = "Appliquer les modifications";
+                this.dom.btnCancelEdit.style.display = "block";
+                this.dom.btnDeleteAgent.style.display = "block";
+            }
 
-    agentsDb.forEach(agent => {
-        const calculPaie = calculerImpactPaie(agent, moisEnCours);
-        if (!calculPaie) return;
+            formatDateDisplay(dStr) {
+                if(!dStr) return "";
+                const p = dStr.split("-");
+                return `${p[2]}/${p[1]}/${p[0]}`;
+            }
 
-        if (agent.situation !== "aucun") {
-            compteurIncidencesMois++;
-        }
+            renderDirectory() {
+                this.dom.directoryList.innerHTML = "";
+                const filtered = this.state.agents
+                    .filter(a => a.nom.toLowerCase().includes(this.state.searchQuery))
+                    .sort((a, b) => a.nom.localeCompare(b.nom));
 
-        let classeModificateur = "mod-100";
-        if (calculPaie.impact === 50) classeModificateur = "mod-50";
-        if (calculPaie.impact === 0)  classeModificateur = "mod-0";
+                this.dom.totalAgentsBadge.textContent = this.state.agents.length;
 
-        const tr = document.createElement('tr');
-        if (agent.id === agentSelectionneId) {
-            tr.style.backgroundColor = "#eff6ff"; 
-            tr.style.borderLeft = "4px solid #3b82f6";
-        }
+                filtered.forEach(a => {
+                    const item = document.createElement('div');
+                    item.className = `directory-item ${this.state.selectedAgentId === a.id ? 'active' : ''}`;
+                    item.innerHTML = `
+                        <span style="font-weight:600;font-size:13px;">${a.nom}</span>
+                        <span class="badge badge-${a.grade}">${this.gradesLabels[a.grade]}</span>
+                    `;
+                    item.addEventListener('click', () => {
+                        if(this.state.selectedAgentId === a.id) this.resetFormState();
+                        else { this.loadAgentIntoForm(a.id); this.render(); }
+                    });
+                    this.dom.directoryList.appendChild(item);
+                });
+            }
 
-        tr.innerHTML = `
-            <td style="font-weight: 600;">${agent.nom}</td>
-            <td><span class="badge badge-${agent.grade}">${labelGrades[agent.grade]}</span></td>
-            <td><span class="badge-sit badge-${agent.situation}">${labelSituations[agent.situation]}</span></td>
-            <td><span class="mod-type ${classeModificateur}">${calculPaie.impact}%</span></td>
-            <td style="color: #475569;">${calculPaie.consigne}</td>
-        `;
-        tableBody.appendChild(tr);
-    });
+            renderLedger() {
+                this.dom.tableBody.innerHTML = "";
+                let incidencesCount = 0;
 
-    badgeIncidences.innerText = `${compteurIncidencesMois} alerte${compteurIncidencesMois > 1 ? 's' : ''} ce mois`;
-}
+                this.state.agents.forEach(a => {
+                    const hasActiveIncident = this.isEventActiveInSelectedMonth(a);
+                    let quotite = "100%";
+                    let colorQuotite = "color: var(--emerald-600);";
+                    let consigne = "Traitement normal.";
+                    let activeSit = "aucun";
 
-function sauvegarderRappelMensuel() {
-    const moisEnCours = parseInt(monthSelector.value, 10);
-    memoInstitutionnelParMois[moisEnCours] = editableReminderArea.value;
-    alert(`Mémos sauvegardés pour le mois de ${nomsDesMois[moisEnCours]}.`);
-}
+                    if (hasActiveIncident && a.situation !== "aucun") {
+                        incidencesCount++;
+                        activeSit = a.situation;
+                        
+                        switch(a.situation) {
+                            case "clm": quotite = "50%"; colorQuotite = "color: var(--amber-600);"; consigne = "Demi-traitement."; break;
+                            case "cld": consigne = "Plein traitement. Vérifier renouvellement."; break;
+                            case "tpth": consigne = "Reprise thérapeutique. Taux plein."; break;
+                            case "parental":
+                            case "dispo": quotite = "0%"; colorQuotite = "color: var(--rose-600);"; consigne = "Suspendre la rémunération."; break;
+                            case "fin-contrat":
+                            case "retraite": consigne = "Calculer STC / Radiation."; break;
+                            case "naissance": consigne = "ASA Naissance (Plein traitement)."; break;
+                            case "formation": quotite = "85%"; colorQuotite = "color: var(--blue-600);"; consigne = "Indemnité de formation."; break;
+                            case "mat": consigne = "Maintien de salaire (IJSS)."; break;
+                        }
+                    }
 
-// ==========================================
-// 4. ACTION DE LA LISTE DES TÂCHES (TRIPLE ÉTAT)
-// ==========================================
+                    const tr = document.createElement('tr');
+                    if(this.state.selectedAgentId === a.id) tr.style.backgroundColor = "var(--blue-50)";
 
-function ajouterTache() {
-    const texte = newTodoInput.value.trim();
-    if (!texte) return;
-
-    listeTaches.push({
-        id: Date.now(),
-        texte: texte,
-        etat: 0 
-    });
-
-    newTodoInput.value = "";
-    mettreAJourInterface();
-}
-
-function alternerEtatTache(idTache) {
-    const tache = listeTaches.find(t => t.id === idTache);
-    if (tache) {
-        tache.etat = (tache.etat + 1) % 3; 
-        mettreAJourInterface();
-    }
-}
-
-function supprimerTache(idTache) {
-    listeTaches = listeTaches.filter(t => t.id !== idTache);
-    mettreAJourInterface();
-}
-
-function genererTaches() {
-    todoListContainer.innerHTML = "";
-    
-    if (listeTaches.length === 0) {
-        todoListContainer.innerHTML = `<li class="empty-message" style="padding:10px 0; color:#94a3b8;">Aucune action enregistrée.</li>`;
-        return;
-    }
-
-    listeTaches.forEach(tache => {
-        const li = document.createElement('li');
-        li.className = "todo-item";
-        
-        let classeEtatTexte = "";
-        let styleLigne = "";
-        
-        if (tache.etat === 1) { 
-            // État 1 : À faire aujourd'hui (Surlignage Jaune vif)
-            classeEtatTexte = "surligne-urgent";
-            styleLigne = "background-color: #fef08a; border-left: 4px solid #eab308; padding: 6px; border-radius: 4px;";
-        } else if (tache.etat === 2) { 
-            // État 2 : Terminé (Rayé)
-            classeEtatTexte = "raye-termine";
-            styleLigne = "opacity: 0.6;";
-        }
-
-        li.innerHTML = `
-            <div class="todo-item-left" style="display: flex; align-items: center; gap: 10px; flex: 1; ${styleLigne}">
-                <span class="todo-square-checkbox" onclick="alternerEtatTache(${tache.id})" style="cursor:pointer; font-size: 1.1rem; user-select: none;">
-                    ${tache.etat === 2 ? '✅' : (tache.etat === 1 ? '⭐' : '⬜')}
-                </span>
-                <span class="todo-text ${classeEtatTexte}">${tache.texte}</span>
-            </div>
-            <button class="btn-delete-todo" onclick="supprimerTache(${tache.id})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2rem; font-weight:bold;">×</button>
-        `;
-        todoListContainer.appendChild(li);
-    });
-}
-
-// ==========================================
-// 5. COORDINATION GÉNÉRALE
-// ==========================================
-
-function mettreAJourInterface() {
-    genererAnnuaire();
-    genererIncidencesEtRappels();
-    genererTaches();
-}
-
-monthSelector.addEventListener('change', genererIncidencesEtRappels);
-mettreAJourInterface();
-</script>
-
-</body>
-</html>
+                    tr.innerHTML = `
+                        <td><strong>${a.nom}</strong></td>
+                        <td><span class="badge badge-${a.grade}">${this.gradesLabels[a.grade]}</span></td>
+                        <td><span class="pill ${activeSit !== 'aucun' ? 'pill-active' : 'pill-none'}">${this.situationsLabels[activeSit]}</span></td>
+                        <td><span class="quotite" style="${colorQuotite}">${quotite}</span></td>
+                        <td><span style="font-size:12px;">${consigne}
